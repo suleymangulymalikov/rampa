@@ -29,3 +29,84 @@ body,
 .map {
   flex: 1;
 }
+
+.app {
+  position: relative;
+}
+
+.modes {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.modes button {
+  padding: 0.3rem 0.8rem;
+  border: 1px solid #fff;
+  border-radius: 6px;
+  background: transparent;
+  color: #fff;
+  cursor: pointer;
+}
+
+.modes button.active {
+  background: #fff;
+  color: #0b2f55;
+}
+
+.report-form {
+  position: absolute;
+  z-index: 1000;
+  left: 50%;
+  bottom: 1.5rem;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  width: min(92vw, 22rem);
+  box-sizing: border-box;
+  padding: 1rem;
+  border-radius: 10px;
+  background: #fff;
+  color: #111;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.report-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.9rem;
+}
+
+.report-form .row {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.report-form button {
+  flex: 1;
+  padding: 0.5rem;
+  border-radius: 6px;
+  border: 1px solid #0b2f55;
+  background: #0b2f55;
+  color: #fff;
+  cursor: pointer;
+}
+
+.report-form button[type='button'] {
+  background: #fff;
+  color: #0b2f55;
+}
+
+.error-dark {
+  color: #b00020;
+  font-size: 0.85rem;
+}
+
+.popup-photo {
+  display: block;
+  width: 12rem;
+  max-width: 100%;
+  margin-top: 0.4rem;
+  border-radius: 6px;
+}
