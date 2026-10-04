@@ -7,7 +7,7 @@ import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png'
 import markerShadow from 'leaflet/dist/images/marker-shadow.png'
 import './App.css'
 import { fetchRoute, PROFILES } from './routing'
-import { REPORT_TYPES, fetchActiveReports, subscribeToReports } from './reports'
+import { REPORT_TYPES, fetchActiveReports, markFixed, subscribeToReports } from './reports'
 import ReportForm from './ReportForm'
 
 delete L.Icon.Default.prototype._getIconUrl
@@ -133,6 +133,12 @@ export default function App() {
               {new Date(r.created_at).toLocaleString()}
               {r.is_demo && <><br /><em>Demo data</em></>}
               {r.photo_url && <img src={r.photo_url} alt="Report" className="popup-photo" />}
+              <button
+                className="fix-btn"
+                onClick={() => markFixed(r.id).catch((err) => setError(err.message))}
+              >
+                Mark as fixed
+              </button>
             </Popup>
           </CircleMarker>
         ))}

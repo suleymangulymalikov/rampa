@@ -41,6 +41,11 @@ export async function addReport({ lat, lng, type, photo }) {
   return data
 }
 
+export async function markFixed(id) {
+  const { error } = await supabase.from('reports').update({ status: 'fixed' }).eq('id', id)
+  if (error) throw error
+}
+
 // Calls onChange whenever any report is inserted or updated. Returns an unsubscribe function.
 export function subscribeToReports(onChange) {
   const channel = supabase

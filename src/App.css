@@ -110,3 +110,14 @@ body,
   margin-top: 0.4rem;
   border-radius: 6px;
 }
+
+.fix-btn {
+  display: block;
+  margin-top: 0.5rem;
+  padding: 0.35rem 0.7rem;
+  border: 1px solid #1b7f3b;
+  border-radius: 6px;
+  background: #1b7f3b;
+  color: #fff;
+  cursor: pointer;
+}
