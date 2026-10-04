@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { MapContainer, TileLayer, Marker, Polyline, CircleMarker, Popup, useMapEvents } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
 import L from 'leaflet'
@@ -40,23 +40,23 @@ export default function App() {
     return subscribeToReports(load)
   }, [])
 
-  async function loadRoute(from, to, profileKey) {
+  const requestId = useRef(0)
+
+  // Re-route whenever the points, the profile or the active reports change.
+  useEffect(() => {
+    if (points.length !== 2) return
+    const id = ++requestId.current
     setError('')
     setLoading(true)
-    try {
-      setRoute(await fetchRoute(from, to, profileKey))
-    } catch (err) {
-      setRoute(null)
-      setError(err.message)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  function handleProfile(profileKey) {
-    setProfile(profileKey)
-    if (points.length === 2) loadRoute(points[0], points[1], profileKey)
-  }
+    fetchRoute(points[0], points[1], profile, reports)
+      .then((r) => id === requestId.current && setRoute(r))
+      .catch((err) => {
+        if (id !== requestId.current) return
+        setRoute(null)
+        setError(err.message)
+      })
+      .finally(() => id === requestId.current && setLoading(false))
+  }, [points, profile, reports])
 
   async function handlePick(latlng) {
     setError('')
@@ -65,20 +65,21 @@ export default function App() {
       return
     }
     if (points.length >= 2) {
+      requestId.current++
+      setLoading(false)
       setPoints([latlng])
       setRoute(null)
       return
     }
     const next = [...points, latlng]
     setPoints(next)
-    if (next.length === 2) loadRoute(next[0], next[1], profile)
   }
 
   return (
     <div className="app">
       <header className="bar">
         <strong>Rampa</strong>
-        <select value={profile} onChange={(e) => handleProfile(e.target.value)} aria-label="Mobility profile">
+        <select value={profile} onChange={(e) => setProfile(e.target.value)} aria-label="Mobility profile">
           {Object.entries(PROFILES).map(([key, p]) => (
             <option key={key} value={key}>
               {p.label}
@@ -105,6 +106,7 @@ export default function App() {
           {mode === 'route' && points.length === 1 && 'Tap the map to set the destination'}
           {mode === 'route' && points.length === 2 && loading && 'Finding accessible route...'}
           {route && ` ${(route.distance / 1000).toFixed(2)} km, ${Math.round(route.duration / 60)} min`}
+          {route && reports.length > 0 && ` (avoiding ${reports.length} reported obstacles)`}
         </span>
         {error && <span className="error">{error}</span>}
       </header>

@@ -38,8 +38,30 @@ export const PROFILES = {
   },
 }
 
+const AVOID_RADIUS_M = 15
+
+// A small square around each report, in the GeoJSON MultiPolygon shape ORS expects.
+function avoidPolygons(reports) {
+  return {
+    type: 'MultiPolygon',
+    coordinates: reports.map(({ lat, lng }) => {
+      const dLat = AVOID_RADIUS_M / 111320
+      const dLng = AVOID_RADIUS_M / (111320 * Math.cos((lat * Math.PI) / 180))
+      return [
+        [
+          [lng - dLng, lat - dLat],
+          [lng + dLng, lat - dLat],
+          [lng + dLng, lat + dLat],
+          [lng - dLng, lat + dLat],
+          [lng - dLng, lat - dLat],
+        ],
+      ]
+    }),
+  }
+}
+
 // from, to: [lat, lng]. Returns { coords: [[lat, lng], ...], distance (m), duration (s) }
-export async function fetchRoute(from, to, profileKey = 'wheelchair') {
+export async function fetchRoute(from, to, profileKey = 'wheelchair', reports = []) {
   const key = import.meta.env.VITE_ORS_KEY
   if (!key) throw new Error('Missing VITE_ORS_KEY in .env')
   const profile = PROFILES[profileKey]
@@ -52,7 +74,9 @@ export async function fetchRoute(from, to, profileKey = 'wheelchair') {
         [from[1], from[0]],
         [to[1], to[0]],
       ],
-      options: profile.options,
+      options: reports.length
+        ? { ...profile.options, avoid_polygons: avoidPolygons(reports) }
+        : profile.options,
     }),
   })
   if (!res.ok) {
