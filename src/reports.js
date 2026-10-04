@@ -46,6 +46,11 @@ export async function markFixed(id) {
   if (error) throw error
 }
 
+export async function markManyFixed(ids) {
+  const { error } = await supabase.from('reports').update({ status: 'fixed' }).in('id', ids)
+  if (error) throw error
+}
+
 // Calls onChange whenever any report is inserted or updated. Returns an unsubscribe function.
 export function subscribeToReports(onChange) {
   const channel = supabase

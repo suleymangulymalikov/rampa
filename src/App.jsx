@@ -109,6 +109,9 @@ export default function App() {
           {route && reports.length > 0 && ` (avoiding ${reports.length} reported obstacles)`}
         </span>
         {error && <span className="error">{error}</span>}
+        <a className="bar-link" href="#/city">
+          City dashboard
+        </a>
       </header>
       <MapContainer center={KRAKOW} zoom={15} className="map">
         <TileLayer
