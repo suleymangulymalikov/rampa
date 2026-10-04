@@ -6,7 +6,7 @@ import markerIcon from 'leaflet/dist/images/marker-icon.png'
 import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png'
 import markerShadow from 'leaflet/dist/images/marker-shadow.png'
 import './App.css'
-import { fetchRoute } from './routing'
+import { fetchRoute, PROFILES } from './routing'
 
 delete L.Icon.Default.prototype._getIconUrl
 L.Icon.Default.mergeOptions({
@@ -27,6 +27,25 @@ export default function App() {
   const [route, setRoute] = useState(null)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [profile, setProfile] = useState('wheelchair')
+
+  async function loadRoute(from, to, profileKey) {
+    setError('')
+    setLoading(true)
+    try {
+      setRoute(await fetchRoute(from, to, profileKey))
+    } catch (err) {
+      setRoute(null)
+      setError(err.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  function handleProfile(profileKey) {
+    setProfile(profileKey)
+    if (points.length === 2) loadRoute(points[0], points[1], profileKey)
+  }
 
   async function handlePick(latlng) {
     setError('')
@@ -37,22 +56,20 @@ export default function App() {
     }
     const next = [...points, latlng]
     setPoints(next)
-    if (next.length === 2) {
-      setLoading(true)
-      try {
-        setRoute(await fetchRoute(next[0], next[1]))
-      } catch (err) {
-        setError(err.message)
-      } finally {
-        setLoading(false)
-      }
-    }
+    if (next.length === 2) loadRoute(next[0], next[1], profile)
   }
 
   return (
     <div className="app">
       <header className="bar">
         <strong>Rampa</strong>
+        <select value={profile} onChange={(e) => handleProfile(e.target.value)} aria-label="Mobility profile">
+          {Object.entries(PROFILES).map(([key, p]) => (
+            <option key={key} value={key}>
+              {p.label}
+            </option>
+          ))}
+        </select>
         <span>
           {points.length === 0 && 'Tap the map to set the start'}
           {points.length === 1 && 'Tap the map to set the destination'}
